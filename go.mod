@@ -1,4 +1,4 @@
-module cloudcms-go-driver
+module github.com/gitana/cloudcms-go-driver
 
 go 1.18
 

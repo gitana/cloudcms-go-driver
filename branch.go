@@ -5,13 +5,13 @@ import (
 	"net/url"
 )
 
-func (session *CloudCmsSession) QueryBranches(repositoryId string, query JsonObject, pagination JsonObject) (*ResultMap[JsonObject], error) {
+func (session *CloudCmsSession) QueryBranches(repositoryId string, query JsonObject, pagination JsonObject) (*ResultMap, error) {
 	res, err := session.Post(fmt.Sprintf("/repositories/%s/branches/query", repositoryId), ToParams(pagination), MapToReader(query))
 	if err != nil {
 		return nil, err
 	}
 
-	return ToResultMap[JsonObject](res), nil
+	return ToResultMap(res), nil
 }
 
 func (session *CloudCmsSession) ReadBranch(repositoryId string, branchId string) (JsonObject, error) {
@@ -30,7 +30,7 @@ func (session *CloudCmsSession) CreateBranch(repositoryId string, parentBranchId
 	return session.Post(fmt.Sprintf("/repositories/%s/branches", repositoryId), params, MapToReader(obj))
 }
 
-func (session *CloudCmsSession) ListBranches(repositoryId string, pagination JsonObject) (*ResultMap[JsonObject], error) {
+func (session *CloudCmsSession) ListBranches(repositoryId string, pagination JsonObject) (*ResultMap, error) {
 	params := ToParams(pagination)
 	params.Add("full", "true")
 	res, err := session.Get(fmt.Sprintf("/repositories/%s/branches", repositoryId), params)
@@ -38,7 +38,7 @@ func (session *CloudCmsSession) ListBranches(repositoryId string, pagination Jso
 		return nil, err
 	}
 
-	return ToResultMap[JsonObject](res), nil
+	return ToResultMap(res), nil
 }
 
 func (session *CloudCmsSession) DeleteBranch(repositoryId string, branchId string) error {

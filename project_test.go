@@ -1,6 +1,10 @@
 package main
 
-import "testing"
+import (
+	"fmt"
+	"testing"
+	"time"
+)
 
 func TestProjects(t *testing.T) {
 	session, err := ConnectDefault()
@@ -8,7 +12,8 @@ func TestProjects(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	jobId, err := session.StartCreateProject(JsonObject{"title": "my project"})
+	title := fmt.Sprintf("Project-%d", time.Now().Unix())
+	jobId, err := session.StartCreateProject(JsonObject{"title": title})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -24,7 +29,7 @@ func TestProjects(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if project.GetString("title") != "my project" {
+	if project.GetString("title") != title {
 		t.Fatal("Project failed to create/read")
 	}
 }

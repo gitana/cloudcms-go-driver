@@ -15,7 +15,7 @@ func (session *CloudCmsSession) ReadRepository(repositoryId string) (JsonObject,
 	return session.Get(fmt.Sprintf("/repositories/%s", repositoryId), nil)
 }
 
-func (session *CloudCmsSession) QueryRepositories(query JsonObject, pagination JsonObject) (*ResultMap[JsonObject], error) {
+func (session *CloudCmsSession) QueryRepositories(query JsonObject, pagination JsonObject) (*ResultMap, error) {
 	res, err := session.Post("/repositories/query", ToParams(pagination), MapToReader(query))
 	if err != nil {
 		return nil, err

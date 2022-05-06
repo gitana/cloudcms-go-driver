@@ -14,7 +14,7 @@ func (session *CloudCmsSession) ReadNode(repositoryId string, branchId string, n
 	return session.Get(fmt.Sprintf("/repositories/%s/branches/%s/nodes/%s", repositoryId, branchId, nodeId), nil)
 }
 
-func (session *CloudCmsSession) QueryNodes(repositoryId string, branchId string, query JsonObject, pagination JsonObject) (*ResultMap[JsonObject], error) {
+func (session *CloudCmsSession) QueryNodes(repositoryId string, branchId string, query JsonObject, pagination JsonObject) (*ResultMap, error) {
 	res, err := session.Post(fmt.Sprintf("/repositories/%s/branches/%s/nodes/query", repositoryId, branchId), ToParams(pagination), MapToReader(query))
 	if err != nil {
 		return nil, err
@@ -37,7 +37,7 @@ func (session *CloudCmsSession) QueryOneNode(repositoryId string, branchId strin
 	return res.rows[0], nil
 }
 
-func (session *CloudCmsSession) SearchNodes(repositoryId string, branchId string, text string, pagination JsonObject) (*ResultMap[JsonObject], error) {
+func (session *CloudCmsSession) SearchNodes(repositoryId string, branchId string, text string, pagination JsonObject) (*ResultMap, error) {
 	uri := fmt.Sprintf("/repositories/%s/branches/%s/nodes/search", repositoryId, branchId)
 	params := ToParams(pagination)
 	params.Add("text", text)
@@ -50,7 +50,7 @@ func (session *CloudCmsSession) SearchNodes(repositoryId string, branchId string
 	return ToResultMap(res), nil
 }
 
-func (session *CloudCmsSession) FindNodes(repositoryId string, branchId string, config JsonObject, pagination JsonObject) (*ResultMap[JsonObject], error) {
+func (session *CloudCmsSession) FindNodes(repositoryId string, branchId string, config JsonObject, pagination JsonObject) (*ResultMap, error) {
 	uri := fmt.Sprintf("/repositories/%s/branches/%s/nodes/find", repositoryId, branchId)
 	params := ToParams(pagination)
 
@@ -93,7 +93,7 @@ func (session *CloudCmsSession) CreateNode(repositoryId string, branchId string,
 	return ExtractId(&res), nil
 }
 
-func (session *CloudCmsSession) QueryNodeRelatives(repositoryId string, branchId string, nodeId string, associationTypeQName string, associationDirection string, query JsonObject, pagination JsonObject) (*ResultMap[JsonObject], error) {
+func (session *CloudCmsSession) QueryNodeRelatives(repositoryId string, branchId string, nodeId string, associationTypeQName string, associationDirection string, query JsonObject, pagination JsonObject) (*ResultMap, error) {
 	params := ToParams(pagination)
 	params.Add("type", associationTypeQName)
 	params.Add("direction", associationDirection)
@@ -106,11 +106,11 @@ func (session *CloudCmsSession) QueryNodeRelatives(repositoryId string, branchId
 	return ToResultMap(res), nil
 }
 
-func (session *CloudCmsSession) QueryNodeChildren(repositoryId string, branchId string, nodeId string, query JsonObject, pagination JsonObject) (*ResultMap[JsonObject], error) {
+func (session *CloudCmsSession) QueryNodeChildren(repositoryId string, branchId string, nodeId string, query JsonObject, pagination JsonObject) (*ResultMap, error) {
 	return session.QueryNodeRelatives(repositoryId, branchId, nodeId, "a:child", "OUTGOING", query, pagination)
 }
 
-func (session *CloudCmsSession) ListNodeAssociations(repositoryId string, branchId string, nodeId string, associationTypeQName string, associationDirection string, pagination JsonObject) (*ResultMap[JsonObject], error) {
+func (session *CloudCmsSession) ListNodeAssociations(repositoryId string, branchId string, nodeId string, associationTypeQName string, associationDirection string, pagination JsonObject) (*ResultMap, error) {
 	params := ToParams(pagination)
 
 	if associationTypeQName != "" {
@@ -128,11 +128,11 @@ func (session *CloudCmsSession) ListNodeAssociations(repositoryId string, branch
 	return ToResultMap(res), nil
 }
 
-func (session *CloudCmsSession) ListOutgoingAssociations(repositoryId string, branchId string, nodeId string, associationTypeQName string, pagination JsonObject) (*ResultMap[JsonObject], error) {
+func (session *CloudCmsSession) ListOutgoingAssociations(repositoryId string, branchId string, nodeId string, associationTypeQName string, pagination JsonObject) (*ResultMap, error) {
 	return session.ListNodeAssociations(repositoryId, branchId, nodeId, associationTypeQName, "OUTGOING", pagination)
 }
 
-func (session *CloudCmsSession) ListIncomingAssociations(repositoryId string, branchId string, nodeId string, associationTypeQName string, pagination JsonObject) (*ResultMap[JsonObject], error) {
+func (session *CloudCmsSession) ListIncomingAssociations(repositoryId string, branchId string, nodeId string, associationTypeQName string, pagination JsonObject) (*ResultMap, error) {
 	return session.ListNodeAssociations(repositoryId, branchId, nodeId, associationTypeQName, "INCOMING", pagination)
 }
 
@@ -353,7 +353,7 @@ func (session *CloudCmsSession) DownloadAttachment(repositoryId string, branchId
 	return session.Download(fmt.Sprintf("/repositories/%s/branches/%s/nodes/%s/attachments/%s", repositoryId, branchId, nodeId, attachmentId), nil)
 }
 
-func (session *CloudCmsSession) ListAttachments(repositoryId string, branchId string, nodeId string) (*ResultMap[JsonObject], error) {
+func (session *CloudCmsSession) ListAttachments(repositoryId string, branchId string, nodeId string) (*ResultMap, error) {
 	res, err := session.Get(fmt.Sprintf("/repositories/%s/branches/%s/nodes/%s/attachments", repositoryId, branchId, nodeId), nil)
 	if err != nil {
 		return nil, err
@@ -371,7 +371,7 @@ func (session *CloudCmsSession) DeleteAttachment(repositoryId string, branchId s
 	return err
 }
 
-func (session *CloudCmsSession) ListVersions(repositoryId string, branchId string, nodeId string, options JsonObject, pagination JsonObject) (*ResultMap[JsonObject], error) {
+func (session *CloudCmsSession) ListVersions(repositoryId string, branchId string, nodeId string, options JsonObject, pagination JsonObject) (*ResultMap, error) {
 	params := ToParams(options, pagination)
 
 	res, err := session.Get(fmt.Sprintf("/repositories/%s/branches/%s/nodes/%s/versions", repositoryId, branchId, nodeId), params)

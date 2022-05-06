@@ -10,6 +10,7 @@ import (
 	"net/url"
 	"os"
 	"path/filepath"
+	"runtime/debug"
 
 	"golang.org/x/oauth2"
 )
@@ -22,19 +23,19 @@ type CloudcmsConfig struct {
 	BaseURL       string `json:"baseURL"`
 }
 
-type ResultMap[T JsonObject] struct {
-	rows       []T
-	size       int
-	total_rows int
-	offset     int
-}
-
 type CloudCmsSession struct {
 	oauthClient *http.Client
 	config      *CloudcmsConfig
 }
 
 type JsonObject map[string]interface{}
+
+type ResultMap struct {
+	rows       []JsonObject
+	size       int
+	total_rows int
+	offset     int
+}
 
 func (obj *JsonObject) GetString(key string) string {
 	val, ok := (*obj)[key]
@@ -59,13 +60,68 @@ func (obj *JsonObject) GetObject(key string) JsonObject {
 	return JsonObject(m)
 }
 
-func buildOAuthClient(cloudcmsConfig *CloudcmsConfig) (*http.Client, error) {
-	ctx := context.Background()
-	httpClient := &http.Client{
-		Transport: LoggingRoundTripper{http.DefaultTransport},
+func (obj *JsonObject) GetArray(key string) []interface{} {
+
+	val, ok := (*obj)[key]
+	if !ok {
+		return nil
 	}
 
-	ctx = context.WithValue(ctx, oauth2.HTTPClient, httpClient)
+	a, ok := val.([]interface{})
+	if !ok {
+		return nil
+	}
+
+	return a
+}
+
+func (obj *JsonObject) GetObjectArray(key string) []JsonObject {
+	arr := obj.GetArray(key)
+	if arr == nil {
+		return nil
+	}
+
+	res := make([]JsonObject, len(arr))
+	for i, v := range arr {
+		res[i] = v.(map[string]interface{})
+	}
+
+	return res
+}
+
+// This type implements the http.RoundTripper interface
+type LoggingRoundTripper struct {
+	Proxied http.RoundTripper
+}
+
+func (lrt LoggingRoundTripper) RoundTrip(req *http.Request) (res *http.Response, e error) {
+	info := fmt.Sprintf("%v %v %v", req.Method, req.URL, req.Proto)
+	fmt.Println(info)
+
+	// Send the request, get the response (or the error)
+	res, e = lrt.Proxied.RoundTrip(req)
+
+	// Handle the result.
+	if e != nil {
+		fmt.Printf("Error: %v", e)
+		debug.PrintStack()
+	} else {
+		fmt.Printf("Received %v response\n", res.Status)
+	}
+
+	return res, e
+}
+
+func buildOAuthClient(cloudcmsConfig *CloudcmsConfig) (*http.Client, error) {
+	ctx := context.Background()
+	httpClient := http.Client{}
+
+	requestLogging := true
+	if requestLogging {
+		httpClient.Transport = LoggingRoundTripper{http.DefaultTransport}
+	}
+
+	ctx = context.WithValue(ctx, oauth2.HTTPClient, &httpClient)
 	conf := &oauth2.Config{
 		ClientID:     cloudcmsConfig.Client_id,
 		ClientSecret: cloudcmsConfig.Client_secret,
@@ -78,7 +134,6 @@ func buildOAuthClient(cloudcmsConfig *CloudcmsConfig) (*http.Client, error) {
 
 	token, err := conf.PasswordCredentialsToken(ctx, cloudcmsConfig.Username, cloudcmsConfig.Password)
 	if err != nil {
-		fmt.Printf("error %s", err)
 		return nil, err
 	}
 
@@ -101,20 +156,22 @@ func ToParams(objs ...JsonObject) url.Values {
 	return params
 }
 
-func ToResultMap[T JsonObject](obj JsonObject) *ResultMap[T] {
-	rows := []T{}
-	rowsInterface := obj["rows"]
+func ToResultMap(obj JsonObject) *ResultMap {
+	// rows := []JsonObject{}
+	// rowsInterface := obj["rows"]
 
-	rowsArr, ok := rowsInterface.([]interface{})
-	if !ok {
-		panic("Failed to retrieve rows")
-	}
+	// rowsArr, ok := rowsInterface.([]interface{})
+	// if !ok {
+	// 	panic("Failed to retrieve rows")
+	// }
 
-	for _, rowObj := range rowsArr {
-		rows = append(rows, rowObj.(map[string]interface{}))
-	}
+	// for _, rowObj := range rowsArr {
+	// 	rows = append(rows, rowObj.(map[string]interface{}))
+	// }
 
-	return &ResultMap[T]{
+	rows := obj.GetObjectArray("rows")
+
+	return &ResultMap{
 		rows:       rows,
 		size:       int(obj["size"].(float64)),
 		total_rows: int(obj["total_rows"].(float64)),
@@ -290,7 +347,6 @@ func (session *CloudCmsSession) MultipartPost(url string, params url.Values, for
 	if err != nil {
 		return nil, err
 	}
-	defer resp.Body.Close()
 
 	return resp.Body, nil
 }

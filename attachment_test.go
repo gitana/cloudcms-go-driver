@@ -27,7 +27,7 @@ func TestAttachments(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	fileBytes, err := os.ReadFile("testAttachments/cloudcms.png")
+	fileBytes, err := os.ReadFile("res/cloudcms.png")
 	if err != nil {
 		t.Fatal(err)
 	}

@@ -2,34 +2,7 @@ package main
 
 import (
 	"fmt"
-	"io"
-	"net/http"
-	"os"
-	"runtime/debug"
 )
-
-// This type implements the http.RoundTripper interface
-type LoggingRoundTripper struct {
-	Proxied http.RoundTripper
-}
-
-func (lrt LoggingRoundTripper) RoundTrip(req *http.Request) (res *http.Response, e error) {
-	info := fmt.Sprintf("%v %v %v", req.Method, req.URL, req.Proto)
-	fmt.Println(info)
-
-	// Send the request, get the response (or the error)
-	res, e = lrt.Proxied.RoundTrip(req)
-
-	// Handle the result.
-	if e != nil {
-		fmt.Printf("Error: %v", e)
-		debug.PrintStack()
-	} else {
-		fmt.Printf("Received %v response\n", res.Status)
-	}
-
-	return res, e
-}
 
 func main() {
 
@@ -61,12 +34,12 @@ func main() {
 	repositoryId := "7330339b45c50c4f53d3"
 	nodeId := "35218c5222a72fbb5e73"
 
-	file, _ := os.Create("./test.jpeg")
-	att, _ := session.DownloadAttachment(repositoryId, "master", nodeId, "default")
-	defer att.Close()
+	// file, _ := os.Create("./test.jpeg")
+	// att, _ := session.DownloadAttachment(repositoryId, "master", nodeId, "default")
+	// defer att.Close()
 
-	io.Copy(file, att)
-	file.Close()
+	// io.Copy(file, att)
+	// file.Close()
 
 	node, _ := session.ReadNode(repositoryId, "master", nodeId)
 	fmt.Println(node)
