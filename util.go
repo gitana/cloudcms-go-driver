@@ -1,4 +1,4 @@
-package main
+package cloudcms
 
 func ExtractId(obj *JsonObject) string {
 	return obj.GetString("_doc")

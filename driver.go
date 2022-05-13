@@ -1,4 +1,4 @@
-package main
+package cloudcms
 
 import (
 	"bytes"
@@ -21,6 +21,7 @@ type CloudcmsConfig struct {
 	Username      string `json:"username"`
 	Password      string `json:"password"`
 	BaseURL       string `json:"baseURL"`
+	Debug         bool   `json:"debug"`
 }
 
 type CloudCmsSession struct {
@@ -116,8 +117,7 @@ func buildOAuthClient(cloudcmsConfig *CloudcmsConfig) (*http.Client, error) {
 	ctx := context.Background()
 	httpClient := http.Client{}
 
-	requestLogging := true
-	if requestLogging {
+	if cloudcmsConfig.Debug {
 		httpClient.Transport = LoggingRoundTripper{http.DefaultTransport}
 	}
 

@@ -4,7 +4,10 @@ HTTP Driver for the for the [Cloud CMS](https://www.cloudcms.com) API
 
 ## Installation
 
-TODO
+In your module directory, run:
+
+`go get github.com/gitana/cloudcms-go-driver`
+## Examples
 
 Below are some examples of how you might use this driver:
 
@@ -12,12 +15,12 @@ Below are some examples of how you might use this driver:
 package main
 
 import (
-    "cloudcms"
+	"github.com/gitana/cloudcms-go-driver"
 )
 
 func main() {
     // Connect to CloudCMS using gitana.json in working directory
-    session, err := ConnectDefault()
+    session, err := cloudcms.ConnectDefault()
 	if err != nil {
 		fmt.Println(err)
         return
@@ -37,26 +40,26 @@ func main() {
     node, _ := session.ReadNode(repositoryId, branchId, nodeId)
 
     // Create Node
-    nodeObj := JsonObject{
+    nodeObj := cloudcms.JsonObject{
         "title": "Twelfth Night",
         "description": "An old play",
     }
     nodeId, _ := session.createNode(repositoryId, branchId, nodeObj, nil)
 
     // Query Nodes
-    query := JsonObject{
+    query := cloudcms.JsonObject{
         "_type": "store:book",
     }
-    pagination := JsonObject{
+    pagination := cloudcms.JsonObject{
         "limit": 1,
     }
     queriedNodes, _ session.QueryNodes(repositoryId, branchId, query, pagination)
 
     // Find Nodes
-    find := JsonObject{
+    find := cloudcms.JsonObject{
         "search": "Shakespeare",
         "query": JsonObject{
-            "_type": "store:book"
+            "_type": "store:book",
         }
     }
     findNodes, _ := session.FindNodes(repositoryId, branchId, find ,nil)
