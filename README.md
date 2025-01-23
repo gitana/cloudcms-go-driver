@@ -1,6 +1,6 @@
 # cloudcms-go-driver
 
-HTTP Driver for the for the [Cloud CMS](https://www.cloudcms.com) API
+HTTP Driver for the for the [Cloud CMS](https://gitana.io) API
 
 ## Installation
 
@@ -68,11 +68,11 @@ func main() {
 
 ## Resources
 
-* Cloud CMS: https://www.cloudcms.com
+* Cloud CMS: https://gitana.io
 * Github: https://github.com/gitana/cloudcms-go-driver
 * Go Driver Download: TODO
-* Cloud CMS Documentation: https://www.cloudcms.com/documentation.html
-* Developers Guide: https://www.cloudcms.com/developers.html
+* Cloud CMS Documentation: https://gitana.io/documentation.html
+* Developers Guide: https://gitana.io/developers.html
 
 ## Support
 
